@@ -13,7 +13,7 @@ class TerminalLineTest {
         assertEquals(5, line.getWidth());
         for (int i = 0; i < 5; i++) {
             assertEquals(' ', line.getCell(i).getCharacter());
-            assertEquals(TerminalColor.DEFAULT, line.getCell(i).getAttributes().getForeground());
+            assertEquals(TerminalColor.DEFAULT, line.getCell(i).getAttributes().foreground());
         }
     }
 
@@ -24,7 +24,7 @@ class TerminalLineTest {
         TerminalCell cell = new TerminalCell('X', attr);
         line.setCell(1, cell);
         assertEquals('X', line.getCell(1).getCharacter());
-        assertTrue(line.getCell(1).getAttributes().isBold());
+        assertTrue(line.getCell(1).getAttributes().bold());
     }
 
     @Test
@@ -35,7 +35,7 @@ class TerminalLineTest {
 
         for (int i = 0; i < 4; i++) {
             assertEquals('-', line.getCell(i).getCharacter());
-            assertTrue(line.getCell(i).getAttributes().isItalic());
+            assertTrue(line.getCell(i).getAttributes().italic());
         }
         assertEquals("----", line.getLineAsString());
     }

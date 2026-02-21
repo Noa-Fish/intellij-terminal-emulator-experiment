@@ -10,9 +10,9 @@ class TerminalCellTest {
     void testDefaultCell() {
         TerminalCell cell = new TerminalCell();
         assertEquals(' ', cell.getCharacter());
-        assertEquals(TerminalColor.DEFAULT, cell.getAttributes().getForeground());
-        assertEquals(TerminalColor.DEFAULT, cell.getAttributes().getBackground());
-        assertFalse(cell.getAttributes().isBold());
+        assertEquals(TerminalColor.DEFAULT, cell.getAttributes().foreground());
+        assertEquals(TerminalColor.DEFAULT, cell.getAttributes().background());
+        assertFalse(cell.getAttributes().bold());
     }
 
     @Test
@@ -20,7 +20,7 @@ class TerminalCellTest {
         TextAttributes attr = new TextAttributes(TerminalColor.RED, TerminalColor.BLACK, true, false, true);
         TerminalCell cell = new TerminalCell('A', attr);
         assertEquals('A', cell.getCharacter());
-        assertTrue(cell.getAttributes().isBold());
-        assertTrue(cell.getAttributes().isUnderline());
+        assertTrue(cell.getAttributes().bold());
+        assertTrue(cell.getAttributes().underline());
     }
 }
