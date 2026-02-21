@@ -12,6 +12,11 @@ public class TerminalLine {
         }
     }
 
+    public TerminalCell getCellAt(int index) {
+        if (index < 0 || index >= cells.length) throw new IndexOutOfBoundsException();
+        return cells[index];
+    }
+
     public int getWidth() {
         return cells.length;
     }

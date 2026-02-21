@@ -40,6 +40,19 @@ public class TerminalBuffer {
     public int getCursorRow() { return cursorRow; }
     public int getCursorCol() { return cursorCol; }
 
+    public List<TerminalLine> getScreenLines() {
+        return List.copyOf(screen);
+    }
+
+    public List<TerminalLine> getScrollbackLines() {
+        return List.copyOf(scrollback);
+    }
+
+    public TerminalLine getScreenLine(int row) {
+        if (row < 0 || row >= screen.size()) throw new IndexOutOfBoundsException();
+        return screen.get(row);
+    }
+
     public void setCursor(int row, int col) {
         cursorRow = Math.max(0, Math.min(row, height - 1));
         cursorCol = Math.max(0, Math.min(col, width - 1));
@@ -88,5 +101,45 @@ public class TerminalBuffer {
         for (char c : s.toCharArray()) {
             writeChar(c);
         }
+    }
+
+    public void moveCursorUp(int n) {
+        cursorRow = Math.max(0, cursorRow - n);
+    }
+
+    public void moveCursorDown(int n) {
+        cursorRow = Math.min(height - 1, cursorRow + n);
+    }
+
+    public void moveCursorLeft(int n) {
+        cursorCol = Math.max(0, cursorCol - n);
+    }
+
+    public void moveCursorRight(int n) {
+        cursorCol = Math.min(width - 1, cursorCol + n);
+    }
+
+    public void fillLine(char ch) {
+        screen.get(cursorRow).fillLine(ch, currentAttributes);
+        cursorCol = width; // cursor moves to end of line
+    }
+
+    public void clearScreen() {
+        for (TerminalLine line : screen) {
+            line.fillLine(' ', new TextAttributes());
+        }
+        setCursor(0, 0);
+    }
+
+    public void clearScreenAndScrollback() {
+        scrollback.clear();
+        clearScreen();
+    }
+
+    public void insertEmptyLineAtBottom() {
+        if (screen.size() >= height) {
+            scrollUp();
+        }
+        screen.set(screen.size() - 1, new TerminalLine(width));
     }
 }
