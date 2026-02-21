@@ -9,17 +9,22 @@ class TerminalBufferTest {
     @Test
     void testWriteCharAndScreen() {
         TerminalBuffer buffer = new TerminalBuffer(5, 3, 10);
-        buffer.writeString("ABCDE");
+        buffer.writeText("ABCDE");
         String[] lines = buffer.getScreenAsString().split("\n");
-        assertEquals("ABCDE", lines[0].trim());
+        assertEquals("ABCDE", lines[0]);
     }
 
     @Test
     void testScroll() {
         TerminalBuffer buffer = new TerminalBuffer(5, 2, 3);
-        buffer.writeString("ABCDEFGH");
+        buffer.writeText("ABCDEFGH");
+
         assertEquals(1, buffer.getCursorRow());
         assertEquals(3, buffer.getCursorCol());
+
+        String[] lines = buffer.getScreenAsString().split("\n");
+        assertEquals("ABCDE", lines[0]);
+        assertEquals("FGH  ", lines[1]);
     }
 
     @Test
@@ -33,7 +38,7 @@ class TerminalBufferTest {
         buffer.moveCursorLeft(1);
         assertEquals(1, buffer.getCursorCol());
         buffer.moveCursorRight(3);
-        assertEquals(4, buffer.getCursorCol()); // cannot exceed width-1
+        assertEquals(4, buffer.getCursorCol());
     }
 
     @Test
@@ -60,9 +65,13 @@ class TerminalBufferTest {
     @Test
     void testInsertEmptyLine() {
         TerminalBuffer buffer = new TerminalBuffer(2, 2, 2);
-        buffer.writeString("ABCD"); // fill screen
+        buffer.writeText("ABCD");
+
         buffer.insertEmptyLineAtBottom();
-        String[] lines = buffer.getScreenAsString().split("\n");
-        assertEquals("  ", lines[1]); // bottom line is empty
+
+        TerminalLine bottom = buffer.getScreenLine(1);
+        for (int i = 0; i < bottom.getWidth(); i++) {
+            assertEquals(' ', bottom.getCellAt(i).getCharacter());
+        }
     }
 }

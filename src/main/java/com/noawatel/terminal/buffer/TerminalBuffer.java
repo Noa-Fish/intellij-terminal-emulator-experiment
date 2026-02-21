@@ -95,10 +95,8 @@ public class TerminalBuffer {
         return sb.toString();
     }
 
-    // TODO: Once full buffer manipulation methods are implemented (insert, overwrite, fill, clear, etc.), remove this method.
-    //  This method is temporary for testing multiple characters quickly.
-    public void writeString(String s) {
-        for (char c : s.toCharArray()) {
+    public void writeText(String text) {
+        for (char c : text.toCharArray()) {
             writeChar(c);
         }
     }
@@ -121,7 +119,7 @@ public class TerminalBuffer {
 
     public void fillLine(char ch) {
         screen.get(cursorRow).fillLine(ch, currentAttributes);
-        cursorCol = width; // cursor moves to end of line
+        cursorCol = width;
     }
 
     public void clearScreen() {
