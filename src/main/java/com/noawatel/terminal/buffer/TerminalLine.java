@@ -35,17 +35,24 @@ public class TerminalLine {
         cells[column] = cell;
     }
 
-    public void fillLine(char ch, TextAttributes attributes) {
+    public void fillLine(char ch, TextAttributes attributes, boolean userTyped) {
         for (TerminalCell cell : cells) {
-            cell.setCharacter(ch);
+            cell.setCharacter(ch, userTyped);
             cell.setAttributes(attributes);
         }
     }
 
-    public String getLineAsString() {
-        StringBuilder sb = new StringBuilder(cells.length);
-        for (TerminalCell cell : cells) {
-            sb.append(cell.getCharacter());
+    public String getUserContent() {
+        int lastUserCharIndex = -1;
+        for (int i = 0; i < getWidth(); i++) {
+            if (cells[i].isUserTyped()) {
+                lastUserCharIndex = i;
+            }
+        }
+        if (lastUserCharIndex == -1) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <= lastUserCharIndex; i++) {
+            sb.append(cells[i].getCharacter());
         }
         return sb.toString();
     }

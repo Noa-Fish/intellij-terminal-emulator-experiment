@@ -5,8 +5,8 @@ import java.util.List;
 
 public class TerminalBuffer {
 
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private final int maxScrollback;
 
     private final List<TerminalLine> scrollback;
@@ -63,18 +63,18 @@ public class TerminalBuffer {
     }
 
     public void writeChar(char c) {
+        if (cursorRow >= height) {
+            scrollUp();
+            cursorRow = height - 1;
+        }
         TerminalLine line = screen.get(cursorRow);
-        line.getCell(cursorCol).setCharacter(c);
+        line.getCell(cursorCol).setCharacter(c, true);
         line.getCell(cursorCol).setAttributes(currentAttributes);
 
         cursorCol++;
-        if (cursorCol >= width) {
+        if (cursorCol == width) {
             cursorCol = 0;
             cursorRow++;
-            if (cursorRow >= height) {
-                scrollUp();
-                cursorRow = height - 1;
-            }
         }
     }
 
@@ -85,14 +85,6 @@ public class TerminalBuffer {
         }
         scrollback.add(removed);
         screen.add(new TerminalLine(width));
-    }
-
-    public String getScreenAsString() {
-        StringBuilder sb = new StringBuilder();
-        for (TerminalLine line : screen) {
-            sb.append(line.getLineAsString()).append("\n");
-        }
-        return sb.toString();
     }
 
     public void writeText(String text) {
@@ -118,13 +110,13 @@ public class TerminalBuffer {
     }
 
     public void fillLine(char ch) {
-        screen.get(cursorRow).fillLine(ch, currentAttributes);
+        screen.get(cursorRow).fillLine(ch, currentAttributes, true);
         cursorCol = width;
     }
 
     public void clearScreen() {
         for (TerminalLine line : screen) {
-            line.fillLine(' ', new TextAttributes());
+            line.fillLine(' ', new TextAttributes(), false);
         }
         setCursor(0, 0);
     }
@@ -139,5 +131,45 @@ public class TerminalBuffer {
             scrollUp();
         }
         screen.set(screen.size() - 1, new TerminalLine(width));
+    }
+
+    public void resize(int newWidth, int newHeight) {
+        if (newWidth <= 0 || newHeight <= 0)
+            throw new IllegalArgumentException("Invalid dimensions");
+
+        List<String> linesContent = new LinkedList<>();
+        for (TerminalLine line : screen) {
+            linesContent.add(line.getUserContent());
+        }
+
+        this.width = newWidth;
+        this.height = newHeight;
+        screen.clear();
+        for (int i = 0; i < newHeight; i++)
+            screen.add(new TerminalLine(newWidth));
+
+        cursorRow = 0;
+        cursorCol = 0;
+
+        for (String lineStr : linesContent) {
+            for (char c : lineStr.toCharArray()) {
+                writeChar(c);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int lastLineWithContent = -1;
+        for (int i = 0; i < screen.size(); i++) {
+            if (!screen.get(i).getUserContent().isEmpty()) {
+                lastLineWithContent = i;
+            }
+        }
+        for (int i = 0; i <= lastLineWithContent; i++) {
+            sb.append(screen.get(i).getUserContent()).append("\n");
+        }
+        return sb.toString();
     }
 }

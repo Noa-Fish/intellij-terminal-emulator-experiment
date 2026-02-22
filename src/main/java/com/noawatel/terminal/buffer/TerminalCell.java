@@ -1,22 +1,27 @@
 package com.noawatel.terminal.buffer;
 
 public class TerminalCell {
-
     private char character;
     private TextAttributes attributes;
+    private boolean userTyped;
 
     public TerminalCell() {
-        this(' ', new TextAttributes());
+        this(' ', new TextAttributes(), false);
     }
 
-    public TerminalCell(char character, TextAttributes attributes) {
+    public TerminalCell(char character, TextAttributes attributes, boolean userTyped) {
         this.character = character;
         this.attributes = attributes;
+        this.userTyped = userTyped;
     }
 
     public char getCharacter() { return character; }
-    public void setCharacter(char character) { this.character = character; }
+    public void setCharacter(char c, boolean userTyped) {
+        this.character = c;
+        this.userTyped = userTyped;
+    }
 
     public TextAttributes getAttributes() { return attributes; }
-    public void setAttributes(TextAttributes attributes) { this.attributes = attributes; }
+    public boolean isUserTyped() { return userTyped; }
+    public void setAttributes(TextAttributes attr) { this.attributes = attr; }
 }

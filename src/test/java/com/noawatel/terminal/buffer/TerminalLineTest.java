@@ -21,7 +21,7 @@ class TerminalLineTest {
     void testSetAndGetCell() {
         TerminalLine line = new TerminalLine(3);
         TextAttributes attr = new TextAttributes(TerminalColor.RED, TerminalColor.BLACK, true, false, false);
-        TerminalCell cell = new TerminalCell('X', attr);
+        TerminalCell cell = new TerminalCell('X', attr, true);
         line.setCell(1, cell);
         assertEquals('X', line.getCell(1).getCharacter());
         assertTrue(line.getCell(1).getAttributes().bold());
@@ -31,12 +31,12 @@ class TerminalLineTest {
     void testFillLine() {
         TerminalLine line = new TerminalLine(4);
         TextAttributes attr = new TextAttributes(TerminalColor.GREEN, TerminalColor.DEFAULT, false, true, false);
-        line.fillLine('-', attr);
+        line.fillLine('-', attr, true);
 
         for (int i = 0; i < 4; i++) {
             assertEquals('-', line.getCell(i).getCharacter());
             assertTrue(line.getCell(i).getAttributes().italic());
         }
-        assertEquals("----", line.getLineAsString());
+        assertEquals("----", line.getUserContent());
     }
 }

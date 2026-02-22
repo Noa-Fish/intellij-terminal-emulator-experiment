@@ -1,7 +1,7 @@
 package com.noawatel.terminal.buffer;
 
 import org.junit.jupiter.api.Test;
-
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TerminalBufferTest {
@@ -10,8 +10,7 @@ class TerminalBufferTest {
     void testWriteCharAndScreen() {
         TerminalBuffer buffer = new TerminalBuffer(5, 3, 10);
         buffer.writeText("ABCDE");
-        String[] lines = buffer.getScreenAsString().split("\n");
-        assertEquals("ABCDE", lines[0]);
+        assertEquals("ABCDE", buffer.getScreenLine(0).getUserContent());
     }
 
     @Test
@@ -22,9 +21,8 @@ class TerminalBufferTest {
         assertEquals(1, buffer.getCursorRow());
         assertEquals(3, buffer.getCursorCol());
 
-        String[] lines = buffer.getScreenAsString().split("\n");
-        assertEquals("ABCDE", lines[0]);
-        assertEquals("FGH  ", lines[1]);
+        assertEquals("ABCDE", buffer.getScreenLine(0).getUserContent());
+        assertEquals("FGH", buffer.getScreenLine(1).getUserContent());
     }
 
     @Test
@@ -49,12 +47,14 @@ class TerminalBufferTest {
         TerminalLine line = buffer.getScreenLine(buffer.getCursorRow());
         for (int i = 0; i < line.getWidth(); i++) {
             assertEquals('X', line.getCellAt(i).getCharacter());
+            assertTrue(line.getCellAt(i).isUserTyped());
         }
 
         buffer.clearScreen();
         for (TerminalLine l : buffer.getScreenLines()) {
             for (int i = 0; i < l.getWidth(); i++) {
                 assertEquals(' ', l.getCellAt(i).getCharacter());
+                assertFalse(l.getCellAt(i).isUserTyped());
             }
         }
 
@@ -72,6 +72,35 @@ class TerminalBufferTest {
         TerminalLine bottom = buffer.getScreenLine(1);
         for (int i = 0; i < bottom.getWidth(); i++) {
             assertEquals(' ', bottom.getCellAt(i).getCharacter());
+            assertFalse(bottom.getCellAt(i).isUserTyped());
         }
+    }
+
+    @Test
+    void testResizeKeepsContent() {
+        TerminalBuffer buffer = new TerminalBuffer(5, 5, 5);
+        buffer.writeText("ABCDE12345");
+
+        buffer.resize(3, 3);
+
+        List<TerminalLine> screen = buffer.getScreenLines();
+
+        assertEquals("DE1", screen.get(0).getUserContent());
+        assertEquals("234", screen.get(1).getUserContent());
+        assertEquals("5", screen.get(2).getUserContent());
+    }
+
+    @Test
+    void testCursorPositionAfterResize() {
+        TerminalBuffer buffer = new TerminalBuffer(5, 5, 10);
+        buffer.writeText("A  B ");
+
+        buffer.resize(3, 2);
+        assertEquals(1, buffer.getCursorRow());
+        assertEquals(2, buffer.getCursorCol());
+
+        buffer.resize(1, 3);
+        assertEquals(3, buffer.getCursorRow());
+        assertEquals(0, buffer.getCursorCol());
     }
 }
