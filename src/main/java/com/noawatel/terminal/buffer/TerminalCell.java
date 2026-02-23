@@ -24,4 +24,10 @@ public class TerminalCell {
     public TextAttributes getAttributes() { return attributes; }
     public boolean isUserTyped() { return userTyped; }
     public void setAttributes(TextAttributes attr) { this.attributes = attr; }
+
+    public void copyFrom(TerminalCell other) {
+        this.character = other.character;
+        this.attributes = other.attributes;
+        this.userTyped = other.userTyped;
+    }
 }

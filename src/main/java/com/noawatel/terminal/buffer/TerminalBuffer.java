@@ -78,6 +78,96 @@ public class TerminalBuffer {
         }
     }
 
+    public void insertText(String text) {
+        for (char c : text.toCharArray()) {
+            insertCharShift(c);
+        }
+    }
+
+    private void insertCharShift(char c) {
+        int r = cursorRow;
+        int col = cursorCol;
+
+        char carry = c;
+        boolean cursorMoved = false;
+
+        while (carry != 0) {
+            TerminalLine line = screen.get(r);
+
+            char nextCarry = line.getCell(col).getCharacter();
+            TextAttributes nextAttr = line.getCell(col).getAttributes();
+
+            line.getCell(col).setCharacter(carry, true);
+            line.getCell(col).setAttributes(currentAttributes);
+
+            if (!cursorMoved) {
+                cursorCol++;
+                cursorRow = r;
+                cursorMoved = true;
+            }
+
+            carry = nextCarry;
+            currentAttributes = nextAttr;
+
+            col++;
+            if (col >= width) {
+                col = 0;
+                r++;
+            }
+
+            if (r >= height) {
+                scrollUp();
+                r = height - 1;
+            }
+
+            if (carry == ' ') {
+                carry = 0;
+            }
+        }
+    }
+
+    private TerminalLine getLineByGlobalRow(int globalRow) {
+        int totalLines = scrollback.size() + screen.size();
+
+        if (globalRow < 0 || globalRow >= totalLines) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (globalRow < scrollback.size()) {
+            return scrollback.get(globalRow);
+        }
+
+        return screen.get(globalRow - scrollback.size());
+    }
+
+    public char getCharAt(int globalRow, int col) {
+        TerminalLine line = getLineByGlobalRow(globalRow);
+        return line.getCell(col).getCharacter();
+    }
+
+    public TextAttributes getAttributesAt(int globalRow, int col) {
+        TerminalLine line = getLineByGlobalRow(globalRow);
+        return line.getCell(col).getAttributes();
+    }
+
+    public String getLineAsString(int globalRow) {
+        return getLineByGlobalRow(globalRow).getUserContent();
+    }
+
+    public String getEntireBufferContent() {
+        StringBuilder sb = new StringBuilder();
+
+        for (TerminalLine line : scrollback) {
+            sb.append(line.getUserContent()).append("\n");
+        }
+
+        for (TerminalLine line : screen) {
+            sb.append(line.getUserContent()).append("\n");
+        }
+
+        return sb.toString();
+    }
+
     private void scrollUp() {
         TerminalLine removed = screen.removeFirst();
         if (scrollback.size() >= maxScrollback) {
